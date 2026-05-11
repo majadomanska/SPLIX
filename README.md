@@ -1,4 +1,4 @@
-# #TODO
+# NAZWA #TODO
 
 A bioinformatics pipeline for extraction, classification, and scoring of introns from GFF and FASTA files.
 
