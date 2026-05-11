@@ -83,6 +83,20 @@ def main():
     if short_scored_csv.exists():
         short_scored_csv.unlink()
 
+    # Structure scoring configuration.
+    structure_cfg = cfg.get("structure_scoring", {})
+
+    max_pairs_score_max = structure_cfg.get("max_pairs_score_max",48,)
+
+    total_pairs_score_max = structure_cfg.get("total_pairs_score_max",50,)
+
+    # Validate configuration values.
+    if not 1 <= max_pairs_score_max <= 60:
+        raise ValueError("max_pairs_score_max must be between 1 and 60")
+
+    if not 1 <= total_pairs_score_max <= 60:
+        raise ValueError("total_pairs_score_max must be between 1 and 60")
+
     score_stats = run_scoring(
         inp_csv=str(extracted_csv),
         out_csv=str(scored_csv),
@@ -91,6 +105,8 @@ def main():
         filter_konstyt=cfg["filters"]["const_or_alt"],
         short_out_csv=str(short_scored_csv),
         short_intron_length=cfg["scored"]["short_intron_length"],
+        max_pairs_score_max=max_pairs_score_max,
+        total_pairs_score_max=total_pairs_score_max,
     )
 
 

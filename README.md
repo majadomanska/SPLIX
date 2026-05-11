@@ -190,6 +190,33 @@ stats:
 
 ---
 
+## structure_scoring
+
+| Parameter | Description |
+|---|---|
+| max_pairs_score_max | Maximum value used to normalize `max_pairs_score` |
+| total_pairs_score_max | Maximum value used to normalize `total_pairs_score` |
+
+Default values:
+
+```yaml
+structure_scoring:
+  max_pairs_score_max: 48
+  total_pairs_score_max: 50
+```
+
+These defaults were selected based on observed score distributions in the *E. longa* genome dataset.
+
+If observed scores exceed configured normalization limits, the pipeline reports a warning and values above the limit are clipped to `1` during normalization.
+
+Example warning:
+
+```text
+WARNING: observed total_pairs_score (40) exceeds configured total_pairs_score_max (10). Normalized values above the limit were clipped to 1.
+```
+
+---
+
 ## filters
 
 | Parameter | Description |

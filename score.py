@@ -375,7 +375,12 @@ def normalize_score(value, max_value):
     return round(normalized, 2)
 
 
-def compute_secondary_structure_cols(intron_first20, intron_last20):
+def compute_secondary_structure_cols(
+    intron_first20,
+    intron_last20,
+    max_pairs_score_max=48,
+    total_pairs_score_max=50,
+):
     """Compute RNAfold-based secondary structure columns."""
     intron_first20 = norm_seq(intron_first20)
     intron_last20 = norm_seq(intron_last20)
@@ -409,9 +414,9 @@ def compute_secondary_structure_cols(intron_first20, intron_last20):
         "total_pairs": total_pairs,
         "total_pairs_score": total_pairs_score,
         "max_pairs_normalized": normalize_score(max_pairs, 20),
-        "max_pairs_score_normalized": normalize_score(max_pairs_score, 48),
+        "max_pairs_score_normalized": normalize_score(max_pairs_score, max_pairs_score_max),
         "total_pairs_normalized": normalize_score(total_pairs, 20),
-        "total_pairs_score_normalized": normalize_score(total_pairs_score, 50),
+        "total_pairs_score_normalized": normalize_score(total_pairs_score, total_pairs_score_max),
         "secondary_structure": structure,
     }
 
@@ -424,6 +429,8 @@ def run_scoring(
     filter_konstyt=None, 
     short_out_csv=None, 
     short_intron_length=30,
+    max_pairs_score_max=48,
+    total_pairs_score_max=50,    
     ):
     """Run intron scoring and save output to CSV."""
     df = pd.read_csv(inp_csv, sep=None, engine="python", dtype=str)
@@ -538,9 +545,35 @@ def run_scoring(
         lambda row: compute_secondary_structure_cols(
             row["intron_first20"],
             row["intron_last20"],
+            max_pairs_score_max=max_pairs_score_max,
+            total_pairs_score_max=total_pairs_score_max,
         ),
         axis=1,
     ).apply(pd.Series)
+
+    observed_max_pairs_score = secondary_df["max_pairs_score"].max()
+    observed_total_pairs_score = secondary_df["total_pairs_score"].max()
+
+    if observed_max_pairs_score > max_pairs_score_max:
+        print(
+            "WARNING: observed max_pairs_score "
+            f"({observed_max_pairs_score}) exceeds "
+            f"configured max_pairs_score_max "
+            f"({max_pairs_score_max}). "
+            "Normalized values above the limit "
+            "were clipped to 1."
+        )
+
+    if observed_total_pairs_score > total_pairs_score_max:
+        print(
+            "WARNING: observed total_pairs_score "
+            f"({observed_total_pairs_score}) exceeds "
+            f"configured total_pairs_score_max "
+            f"({total_pairs_score_max}). "
+            "Normalized values above the limit "
+            "were clipped to 1."
+        )
+
     out = pd.concat([out, secondary_df], axis=1)
 
     sequence_score_cols = [

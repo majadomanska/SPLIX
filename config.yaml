@@ -12,3 +12,7 @@ filters:
 
 stats:
   detailed: true  
+
+structure_scoring:
+  max_pairs_score_max: 48
+  total_pairs_score_max: 50
