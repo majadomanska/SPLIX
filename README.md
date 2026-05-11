@@ -168,6 +168,10 @@ filters:
 
 stats:
   detailed: true
+  
+structure_scoring:
+  max_pairs_score_max: 48 # range: 0-60
+  total_pairs_score_max: 50 # range: 0-60 
 ```
 
 ---
