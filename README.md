@@ -48,8 +48,8 @@ Python dependencies are listed in `requirements.txt`.
 Clone repository:
 
 ```bash
-git clone #TODO
-cd #TODO
+git clone https://github.com/majadomanska/introns.git
+cd introns
 ```
 
 (Optional but recommended) create virtual environment:
