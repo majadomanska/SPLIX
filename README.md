@@ -55,7 +55,7 @@ cd introns
 (Optional but recommended) create virtual environment:
 
 ```bash
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 ```
 
@@ -74,7 +74,7 @@ This project requires RNAfold from the ViennaRNA package.
 Ubuntu / Debian:
 
 ```bash
-sudo apt install viennarna
+sudo apt install vienna-rna     #NIE WIEM CZY DZIALA TODO
 ```
 
 Check installation:
@@ -109,6 +109,8 @@ GFF:
 ```text
 scaffold_1
 ```
+
+Input FASTA and GFF files are expected to be located in the current working directory unless full or relative paths are provided.
 
 Differences in scaffold naming may cause introns to be skipped during extraction.
 
