@@ -124,7 +124,7 @@ Only scaffolds present in the GFF annotation are analyzed.
 Basic usage:
 
 ```bash
-python pipeline.py \
+python pipeline.py \ # z pyproject.toml bedzie ladniej #TODO
     --fasta genome.fasta \
     --gff annotations.gff
 ```
