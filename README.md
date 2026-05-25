@@ -51,14 +51,14 @@ cd SPLIX
 (Optional but recommended) create virtual environment:
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv splix_env
+source splix_env/bin/activate
 ```
 
 Install SPLIX:
 
 ```bash
-pip install -e
+pip install -e . 
 ```
 
 

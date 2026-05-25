@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 
 import argparse
@@ -692,7 +693,7 @@ def run_scoring(
 
     out["SUM_conventional"] = out[conventional_score_cols].sum(axis=1).round(2)
 
-    out["SUM_conventional_normalized"] = (out["SUM_sequence"] / 6).round(2)
+    out["SUM_conventional_normalized"] = (out["SUM_conventional"] / 6).round(2)
 
     out["conv_or_nonconv"] = df["conv_or_nonconv"].astype(str)
     out["const_or_alt"] = df["const_or_alt"].astype(str)

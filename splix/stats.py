@@ -393,9 +393,9 @@ def run_stats(inp_csv, out_txt, detailed=True):
     df = _prepare_df(inp_csv)
     groups = _collect_groups(df)
 
-    sequence_scoring = _collect_scoring(groups, "SUM_sequence")
-    structure_scoring = _collect_scoring(groups, "SUM_structure")
-    conventional_scoring = _collect_scoring(groups, "SUM_conventional")
+    sequence_scoring = _collect_scoring(groups, "SUM_sequence_normalized")
+    structure_scoring = _collect_scoring(groups, "SUM_structure_normalized")
+    conventional_scoring = _collect_scoring(groups, "SUM_conventional_normalized")
 
     composition = _collect_composition(groups)
 
