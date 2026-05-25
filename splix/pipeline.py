@@ -48,11 +48,12 @@ def load_config(config_path):
 
 def main():
     start_time = time.time()
+    default_config = Path(__file__).resolve().parent / "config.yaml"
 
     ap = argparse.ArgumentParser(description="Score introns")
     ap.add_argument("--gff", required=True, help="GFF file")
     ap.add_argument("--fasta", required=True, help="FASTA file")
-    ap.add_argument("--config", default="config.yaml", help="Configuration file")
+    ap.add_argument("--config", default=str(default_config), help="Configuration file")
     ap.add_argument("--name", default=None, help="Custom base name for output files")
     args = ap.parse_args()
 
