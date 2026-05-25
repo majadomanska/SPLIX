@@ -1,8 +1,8 @@
-# NAZWA #TODO
+# SPLIX
 
 A bioinformatics pipeline for extraction, classification, and scoring of introns from GFF and FASTA files.
 
-This tool is designed for analysis of intron features associated with conventional and non-conventional introns, including sequence composition, splice-site motifs, and RNA secondary structure. 
+SPLIX is a tool designed for analysis of intron features associated with conventional and non-conventional introns, including sequence composition, splice-site motifs and RNA pairing potential between intron termini estimated using RNAfold.
 
 Developed and tested on Linux.  #TODO test na innych - dodac 
 
@@ -10,8 +10,8 @@ This pipeline:
 1. extracts introns from genomic annotations,
 2. classifies introns,
 3. computes sequence-based scores,
-4. predicts RNA secondary structure using RNAfold,
-5. computes structure-based scores,
+4. estimates splice-site pairing potential using RNAfold,
+5. computes RNAfold-based pairing scores,
 6. generates summary statistics.
 
 ---
@@ -23,7 +23,7 @@ This pipeline:
 - support for alternative and constitutive introns
 - support for conventional and non-conventional introns
 - splice-site motif scoring
-- RNA secondary structure analysis using RNAfold
+- RNAfold-based splice-site pairing analysis
 - configurable filtering system
 - automatic statistics generation
 - detailed pipeline logs
@@ -44,8 +44,8 @@ Python dependencies are listed in `requirements.txt`.
 Clone repository:
 
 ```bash
-git clone https://github.com/majadomanska/introns.git #TODO nazwa
-cd introns
+git clone https://github.com/majadomanska/SPLIX.git
+cd SPLIX
 ```
 
 (Optional but recommended) create virtual environment:
@@ -55,12 +55,26 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-Install Python dependencies:
+Install SPLIX:
+
+```bash
+pip install -e
+```
+
+
+Alternatively, SPLIX may also be used directly from the source code without installation:
+
+```bash
+python splix/pipeline.py \
+    --fasta genome.fasta \
+    --gff annotations.gff
+```
+
+In this case, Python dependencies may be installed using:
 
 ```bash
 pip install -r requirements.txt
 ```
-
 ---
 
 # RNAfold Dependency
@@ -106,7 +120,7 @@ GFF:
 scaffold_1
 ```
 
-Input FASTA and GFF files are expected to be located in the current working directory unless full or relative paths are provided.
+Input FASTA and GFF files may be specified using relative or absolute paths.
 
 Differences in scaffold naming will cause introns to be skipped during extraction.
 
@@ -124,7 +138,7 @@ Only scaffolds present in the GFF annotation are analyzed.
 Basic usage:
 
 ```bash
-python pipeline.py \ # z pyproject.toml bedzie ladniej #TODO
+splix \
     --fasta genome.fasta \
     --gff annotations.gff
 ```
@@ -132,7 +146,7 @@ python pipeline.py \ # z pyproject.toml bedzie ladniej #TODO
 Using custom config:
 
 ```bash
-python pipeline.py \
+splix \
     --fasta genome.fasta \
     --gff annotations.gff \
     --config config.yaml
@@ -141,7 +155,7 @@ python pipeline.py \
 Using custom output name:
 
 ```bash
-python pipeline.py \
+splix \
     --fasta genome.fasta \
     --gff annotations.gff \
     --name example_run
@@ -150,6 +164,10 @@ python pipeline.py \
 ---
 
 # Configuration
+
+
+By default, SPLIX uses the bundled `config.yaml` file located inside the package.
+Custom configuration files may be provided using `--config`.
 
 Example configuration file:
 
@@ -278,6 +296,7 @@ Additional columns:
 | intron_last20 | Last 20 nt of intron |
 | next_exon_first5 | First 5 nt of downstream exon |
 | secondary_structure | RNAfold secondary structure prediction |
+| secondary_structure_16 | Rescue RNAfold pairing structure calculated using 16 nt terminal windows when no pairing was detected with the default 20 nt windows |
 
 ---
 
@@ -332,9 +351,29 @@ Most sequence features are binary:
 
 ---
 
+## RNAfold Pairing Strategy
+
+The pipeline does not predict the full intron secondary structure.
+
+Instead, it estimates pairing potential between intron termini using constrained local folding with RNAfold.
+
+For each intron:
+- the first 20 nt of the intron are extracted,
+- the last 20 nt of the intron are extracted,
+- a spacer of 20 `N` nucleotides is inserted between them.
+
+The analyzed sequence therefore has the following structure:
+
+```text
+[first 20 nt] + NNNNNNNNNNNNNNNNNNNN + [last 20 nt]
+```
+If no pairing is detected using the default 20 nt terminal windows (`max_pairs = 0` and `total_pairs = 0`), SPLIX performs an additional rescue folding step using 16 nt terminal windows.
+
+---
+
 ## Structure Scoring Columns
 
-These columns describe RNA secondary structure features predicted using RNAfold.
+These columns describe splice-site pairing features estimated using RNAfold-based local folding analysis.
 
 RNA base pairs are weighted according to pairing strength:
 - `C-G` or `G-C` = 3 points
@@ -343,7 +382,7 @@ RNA base pairs are weighted according to pairing strength:
 
 | Column | Description |
 |---|---|
-| secondary_structure | RNAfold secondary structure prediction |
+| secondary_structure | RNAfold dot-bracket pairing prediction |
 | max_pairs | Maximum consecutive base-pair stretch (0–20) |
 | max_pairs_score | Score derived from maximum pairing stretch based on RNA pair types (0–60) |
 | total_pairs | Total number of detected pairings (0–20) |
@@ -389,7 +428,7 @@ Exceptions:
 The pipeline computes three major feature groups:
 
 1. sequence-based scoring,
-2. RNA secondary structure scoring,
+2. RNAfold-based splice-site pairing scoring,
 3. scoring of sequence features associated with conventional introns.
 
 These feature groups are summarized using:
@@ -401,13 +440,33 @@ These feature groups are summarized using:
 
 # Statistics
 
-The pipeline generates summary statistics for:
+The pipeline generates summary statistics for four main result groups:
+
+- sequence scoring,
+- RNAfold-based structure scoring,
+- conventional intron feature scoring,
+- intron composition.
+
+Summary statistics are reported for:
 - conventional vs non-conventional introns,
 - alternative vs constitutive introns within conventional introns,
-- alternative vs constitutive introns within non-conventional introns,
-- sequence scoring,
-- structure scoring,
-- scoring of sequence features associated with conventional introns.
+- alternative vs constitutive introns within non-conventional introns.
+
+In summary scoring sections, percentages represent the mean normalized score for a given intron group, multiplied by 100.
+
+For example:
+
+```text
+SEQUENCE SCORING
+
+Conventional vs Non-conventional
+  Conventional:      28.62%
+  Non-conventional:  61.02%
+```
+
+means that conventional introns have an average `SUM_sequence_normalized` value of `0.2862`, while non-conventional introns have an average value of `0.6102`.
+
+The `COMPOSITION` section is different. Its percentages describe the proportion of introns in each group, not scoring values.
 
 When:
 
@@ -418,19 +477,37 @@ stats:
 
 statistics for individual feature columns are additionally reported.
 
+In detailed statistics:
+- binary features are reported as percentages, showing how often a feature is present in a given group,
+- normalized score columns are also reported as percentages,
+- raw numeric columns are reported as mean values, not percentages.
+
+For example:
+- `G_1 = 100.00%` means that all introns in the group have `G` at position +1,
+- `max_pairs_normalized = 16.54%` means that the mean normalized value is `0.1654`,
+- `max_pairs = 3.31` means that the average maximum consecutive pairing stretch is `3.31` base pairs.
+
+Detailed statistics are grouped into:
+- `SEQUENCE` features,
+- `STRUCTURE` features,
+- `CONVENTIONAL` intron features.
+
 ---
 
 # Project Structure
 
 ```text
-project/
-├── pipeline.py
-├── extract.py
-├── score.py
-├── stats.py
-├── config.yaml
+SPLIX/
+├── pyproject.toml
+├── README.md
 ├── requirements.txt
-└── README.md
+└── splix/
+    ├── __init__.py
+    ├── config.yaml
+    ├── pipeline.py
+    ├── extract.py
+    ├── score.py
+    └── stats.py
 ```
 
 ---
@@ -438,7 +515,7 @@ project/
 # Example Workflow
 
 ```bash
-python pipeline.py \
+splix \
     --fasta example.fasta \
     --gff example.gff \
     --config config.yaml
