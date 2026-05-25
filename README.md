@@ -4,19 +4,15 @@ A bioinformatics pipeline for extraction, classification, and scoring of introns
 
 This tool is designed for analysis of intron features associated with conventional and non-conventional introns, including sequence composition, splice-site motifs, and RNA secondary structure. 
 
-Developed and tested on Linux.
-
-The pipeline consists of three main steps:
-1. EXTRACT
-2. SCORE
-3. STATS
+Developed and tested on Linux.  #TODO test na innych - dodac 
 
 This pipeline:
 1. extracts introns from genomic annotations,
 2. classifies introns,
 3. computes sequence-based scores,
 4. predicts RNA secondary structure using RNAfold,
-5. generates summary statistics.
+5. computes structure-based scores,
+6. generates summary statistics.
 
 ---
 
@@ -48,7 +44,7 @@ Python dependencies are listed in `requirements.txt`.
 Clone repository:
 
 ```bash
-git clone https://github.com/majadomanska/introns.git
+git clone https://github.com/majadomanska/introns.git #TODO nazwa
 cd introns
 ```
 
@@ -74,7 +70,7 @@ This project requires RNAfold from the ViennaRNA package.
 Ubuntu / Debian:
 
 ```bash
-sudo apt install vienna-rna     #NIE WIEM CZY DZIALA TODO
+sudo apt install vienna-rna
 ```
 
 Check installation:
@@ -112,7 +108,11 @@ scaffold_1
 
 Input FASTA and GFF files are expected to be located in the current working directory unless full or relative paths are provided.
 
-Differences in scaffold naming may cause introns to be skipped during extraction.
+Differences in scaffold naming will cause introns to be skipped during extraction.
+
+The program is strand-aware and processes both + and - strand introns correctly.
+However, the strand orientation in the GFF annotation must match the orientation of sequences in the FASTA file.
+If reversed annotations are used, a correspondingly reversed FASTA file must also be provided.
 
 The FASTA file may contain additional scaffolds not present in the GFF file.
 Only scaffolds present in the GFF annotation are analyzed.
@@ -160,7 +160,7 @@ outputs:
 
 scored:
   include_full: true
-  short_intron_length: 30
+  short_intron_length: 40
 
 filters:
   conv_or_nonconv: null       # null / "C" / "N"
@@ -170,8 +170,8 @@ stats:
   detailed: true
   
 structure_scoring:
-  max_pairs_score_max: 48 # range: 0-60
-  total_pairs_score_max: 50 # range: 0-60 
+  max_pairs_score_max: null # range: 1-60
+  total_pairs_score_max: null # range: 1-60 
 ```
 
 ---
@@ -182,8 +182,8 @@ structure_scoring:
 
 | Parameter | Description |
 |---|---|
-| save_scored | Save scored intron table |
-| save_extracted | Save extracted introns before scoring |
+| save_scored | Save scored intron table - main output, `default: true`|
+| save_extracted | Save extracted introns before scoring, `default: false`|
 
 ---
 
@@ -191,8 +191,8 @@ structure_scoring:
 
 | Parameter | Description |
 |---|---|
-| include_full | Include additional sequence and structure columns in output |
-| short_intron_length | Minimum intron length required for scoring |
+| include_full | Include additional sequence and structure columns in output, `default: true` |
+| short_intron_length | Minimum intron length required for scoring, `default: 40` |
 
 ---
 
@@ -200,18 +200,21 @@ structure_scoring:
 
 | Parameter | Description |
 |---|---|
-| max_pairs_score_max | Maximum value used to normalize `max_pairs_score` |
-| total_pairs_score_max | Maximum value used to normalize `total_pairs_score` |
+| max_pairs_score_max | Maximum value used to normalize `max_pairs_score`|
+| total_pairs_score_max | Maximum value used to normalize `total_pairs_score`|
 
 Default values:
 
 ```yaml
 structure_scoring:
-  max_pairs_score_max: 48
-  total_pairs_score_max: 50
+  max_pairs_score_max: null
+  total_pairs_score_max: null
 ```
 
-These defaults were selected based on observed score distributions in the *E. longa* genome dataset.
+When set to `null`, the pipeline automatically uses the highest observed score value from the dataset for normalization.
+This allows normalization to adapt automatically to datasets with different score ranges without requiring manual parameter tuning.
+
+Users may also define fixed normalization limits manually in the config file (range: 1–60).
 
 If observed scores exceed configured normalization limits, the pipeline reports a warning and values above the limit are clipped to `1` during normalization.
 
@@ -271,9 +274,9 @@ Additional columns:
 |---|---|
 | length | Intron length |
 | prev_exon_last5 | Last 5 nt of upstream exon |
-| next_exon_first5 | First 5 nt of downstream exon |
 | intron_first20 | First 20 nt of intron |
 | intron_last20 | Last 20 nt of intron |
+| next_exon_first5 | First 5 nt of downstream exon |
 | secondary_structure | RNAfold secondary structure prediction |
 
 ---
@@ -297,9 +300,9 @@ Additional columns:
 | Column | Description |
 |---|---|
 | prev_exon_last5 | Last 5 nt of upstream exon |
-| next_exon_first5 | First 5 nt of downstream exon |
 | intron_first20 | First 20 nt of intron |
 | intron_last20 | Last 20 nt of intron |
+| next_exon_first5 | First 5 nt of downstream exon |
 
 ---
 
@@ -324,7 +327,8 @@ Most sequence features are binary:
 | CG_4_-6 | C-G pairing at +4/-6 (0 or 1) |
 | AT_5_-7 | A-T pairing at +5/-7 (0 or 1) |
 | GC_6_-8 | G-C pairing at +6/-8 (0 or 1) |
-| SUM_sequence | Combined sequence-based score |
+| SUM_sequence | Combined sequence-based score (0-11) |
+| SUM_sequence_normalized | Normalized combined sequence-based score scaled to 0–1|
 
 ---
 
@@ -341,14 +345,16 @@ RNA base pairs are weighted according to pairing strength:
 |---|---|
 | secondary_structure | RNAfold secondary structure prediction |
 | max_pairs | Maximum consecutive base-pair stretch (0–20) |
-| max_pairs_score | Score derived from maximum pairing stretch based on RNA pair types (0–48) |
+| max_pairs_score | Score derived from maximum pairing stretch based on RNA pair types (0–60) |
 | total_pairs | Total number of detected pairings (0–20) |
-| total_pairs_score | Total score of all detected pairings based on RNA pair types (0–50) |
+| total_pairs_score | Total score of all detected pairings based on RNA pair types (0–60) |
 | max_pairs_normalized | Normalized maximum pairing value scaled to 0–1 |
 | max_pairs_score_normalized | Normalized maximum pairing score scaled to 0–1 |
 | total_pairs_normalized | Normalized total pairing value scaled to 0–1 |
 | total_pairs_score_normalized | Normalized total pairing score scaled to 0–1 |
-| SUM_structure | Combined structure-based score |
+| SUM_structure | Combined structure-based score (0-4)|
+| SUM_structure_normalized | Combined structure-based score scaled to 0–1|
+
 
 ---
 
@@ -372,8 +378,9 @@ Exceptions:
 | G_-1 | Presence of G at position -1 (0 or 1) |
 | A_-2 | Presence of A at position -2 (0 or 1) |
 | C_-3 | Presence of C at position -3 (0 or 1) |
-| pyrimidines_-3_to_-12 | Pyrimidine-rich region near the 3' splice site (0–1) |
-| SUM_conventional | Combined conventional intron score |
+| pyrimidines_-3_to_-12 | Pyrimidine-rich region near the 3' splice site - number of pyrimidines in positions from -3 to -12 normalized to a value between 0 and 1 (0–1) |
+| SUM_conventional | Combined conventional intron score (0-6)|
+| SUM_conventional_normalized | Combined conventional intron score scaled to 0–1|
 
 ---
 
@@ -386,16 +393,15 @@ The pipeline computes three major feature groups:
 3. scoring of sequence features associated with conventional introns.
 
 These feature groups are summarized using:
-- `SUM_sequence`
-- `SUM_structure`
-- `SUM_conventional`
+- `SUM_sequence` and `SUM_sequence_normalized`
+- `SUM_structure` and `SUM_structure_normalized`
+- `SUM_conventional` and `SUM_conventional_normalized`
 
 ---
 
 # Statistics
 
 The pipeline generates summary statistics for:
-- alternative vs constitutive introns,
 - conventional vs non-conventional introns,
 - alternative vs constitutive introns within conventional introns,
 - alternative vs constitutive introns within non-conventional introns,
@@ -473,6 +479,7 @@ Identified introns: 874
 Unique introns after merging: 175
 Saved extracted rows: 175
 Extracted CSV: the_eight_results/the_eight_extracted.csv
+Scaffolds missing in FASTA: 0
 
 Step 2: SCORE
 Input CSV: the_eight_results/the_eight_extracted.csv
@@ -483,6 +490,8 @@ Scored CSV: the_eight_results/the_eight_scored.csv
 Step 3: STATS
 Stats TXT: the_eight_results/the_eight_stats.txt
 Detailed stats: True
+max_pairs_score_max: 48
+total_pairs_score_max: 50
 Short introns CSV: the_eight_results/the_eight_short_introns.csv
 
 Done!
@@ -500,12 +509,3 @@ Elapsed time: 0.97 s
 
 ---
 
-# License
-
-#TODO
-
----
-
-# Citation
-
-#TODO
