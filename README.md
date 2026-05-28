@@ -296,7 +296,7 @@ Additional columns:
 | intron_last20 | Last 20 nt of intron |
 | next_exon_first5 | First 5 nt of downstream exon |
 | secondary_structure | RNAfold secondary structure prediction |
-| secondary_structure_16 | Rescue RNAfold pairing structure calculated using 16 nt terminal windows when no pairing was detected with the default 20 nt windows |
+| secondary_structure_14 | Rescue RNAfold pairing structure calculated using 14 nt terminal windows when no pairing was detected with the default 20 nt windows |
 
 ---
 
@@ -367,7 +367,7 @@ The analyzed sequence therefore has the following structure:
 ```text
 [first 20 nt] + NNNNNNNNNNNNNNNNNNNN + [last 20 nt]
 ```
-If no pairing is detected using the default 20 nt terminal windows (`max_pairs = 0` and `total_pairs = 0`), SPLIX performs an additional rescue folding step using 16 nt terminal windows.
+If no pairing is detected using the default 20 nt terminal windows (`max_pairs = 0` and `total_pairs = 0`), SPLIX performs an additional rescue folding step using 14 nt terminal windows.
 
 ---
 

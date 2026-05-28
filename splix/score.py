@@ -419,8 +419,8 @@ def compute_secondary_structure_cols(intron_first20, intron_last20):
     """Compute RNAfold-based pairing columns.
     Default folding uses 20 nt from both intron ends.
     If no cross-pairing is detected, a rescue folding step is performed
-    using 16 nt from both intron ends. If rescue folding is triggered,
-    he final pairing scores are taken from the 16 nt rescue result.
+    using 14 nt from both intron ends. If rescue folding is triggered,
+    he final pairing scores are taken from the 14 nt rescue result.
     """
     intron_first20 = norm_seq(intron_first20)[:20]
     intron_last20 = norm_seq(intron_last20)[-20:]
@@ -431,19 +431,19 @@ def compute_secondary_structure_cols(intron_first20, intron_last20):
         window_len=20,
         spacer_len=20,
     )
-    result_20["secondary_structure_16"] = ""
+    result_20["secondary_structure_14"] = ""
 
     if result_20["max_pairs"] == 0 and result_20["total_pairs"] == 0:
-        result_16 = fold_and_score(
+        result_14 = fold_and_score(
             intron_first20,
             intron_last20,
-            window_len=16,
+            window_len=14,
             spacer_len=20,
         )
-        structure_16 = result_16.pop("secondary_structure")
-        result_16["secondary_structure"] = result_20["secondary_structure"]
-        result_16["secondary_structure_16"] = structure_16
-        return result_16
+        structure_14 = result_14.pop("secondary_structure")
+        result_14["secondary_structure"] = result_20["secondary_structure"]
+        result_14["secondary_structure_14"] = structure_14
+        return result_14
 
     return result_20
 
@@ -533,7 +533,7 @@ def run_scoring(
         "intron_last20",
         "next_exon_first5",
         "secondary_structure",
-        "secondary_structure_16",
+        "secondary_structure_14",
     ]
 
     if include_full:
