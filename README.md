@@ -542,39 +542,38 @@ Example log file:
 
 ```text
 Step 1: EXTRACT
-FASTA file: 50scaffolds.fasta
-GFF file: the_eight.gff
+FASTA file: longa_rascaf.fasta
+GFF file: E.longa_new_types_30_11_25.gff
 Config file: config.yaml
 Mode: full
-Short intron threshold: 150 nt
+Short intron threshold: 40 nt
 Filter: Conventional or Nonconventional: None
 Filter: Constitutive or Alternative: None
-Number of scaffolds in FASTA: 50
-Number of scaffolds in GFF: 8
-Total GFF records: 1826
-Identified introns: 874
-Unique introns after merging: 175
-Saved extracted rows: 175
-Extracted CSV: the_eight_results/the_eight_extracted.csv
+Number of scaffolds in FASTA: 17904
+Number of scaffolds in GFF: 8193
+Total GFF records: 1059912
+Identified introns: 315741
+Unique introns after merging: 146697
+Saved extracted rows: 146697
+Extracted CSV: E.longa_new_types_30_11_25_results/E.longa_new_types_30_11_25_extracted.csv
 Scaffolds missing in FASTA: 0
 
 Step 2: SCORE
-Input CSV: the_eight_results/the_eight_extracted.csv
-Saved scored rows: 161
-Saved short introns: 14
-Scored CSV: the_eight_results/the_eight_scored.csv
-
-Step 3: STATS
-Stats TXT: the_eight_results/the_eight_stats.txt
-Detailed stats: True
+Input CSV: E.longa_new_types_30_11_25_results/E.longa_new_types_30_11_25_extracted.csv
+Saved scored rows: 145501
+Saved short introns: 1196
+Scored CSV: E.longa_new_types_30_11_25_results/E.longa_new_types_30_11_25_scored.csv
 max_pairs_score_max: 48
 total_pairs_score_max: 50
-Short introns CSV: the_eight_results/the_eight_short_introns.csv
+Short introns CSV: E.longa_new_types_30_11_25_results/E.longa_new_types_30_11_25_short_introns.csv
+
+Step 3: STATS
+Stats TXT: E.longa_new_types_30_11_25_results/E.longa_new_types_30_11_25_stats.txt
+Detailed stats: True
 
 Done!
-Results in: the_eight_results
-Elapsed time: 0.97 s
-```
+Results in: E.longa_new_types_30_11_25_results
+Elapsed time: 880.90 s```
 
 ---
 
