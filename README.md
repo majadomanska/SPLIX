@@ -573,7 +573,8 @@ Detailed stats: True
 
 Done!
 Results in: E.longa_new_types_30_11_25_results
-Elapsed time: 880.90 s```
+Elapsed time: 880.90 s
+```
 
 ---
 
