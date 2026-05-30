@@ -4,7 +4,7 @@ A bioinformatics pipeline for extraction, classification, and scoring of introns
 
 SPLIX is a tool designed for analysis of intron features associated with conventional and non-conventional introns, including sequence composition, splice-site motifs and RNA pairing potential between intron termini estimated using RNAfold.
 
-Developed and tested on Linux.  #TODO test na innych - dodac 
+Developed and tested on Linux.
 
 This pipeline:
 1. extracts introns from genomic annotations,
