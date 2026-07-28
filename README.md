@@ -131,6 +131,10 @@ If reversed annotations are used, a correspondingly reversed FASTA file must als
 The FASTA file may contain additional scaffolds not present in the GFF file.
 Only scaffolds present in the GFF annotation are analyzed.
 
+Intron names in the GFF annotation must contain information indicating whether the intron is conventional (C) or non-conventional (N). 
+
+The constitutive/alternative (const/alt) classification is inferred automatically by the pipeline and does not need to be included in the input files.
+
 ---
 
 # Usage
